@@ -4,15 +4,19 @@ const bcrypt=require("bcrypt")
 
 const signup = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password, photoUrl } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
         ERROR: "Credentials Required",
       });
     }
+      
+    
 
-    const emailPresent = await userModel.findOne({email});
+      const emailPresent = await userModel.findOne({ where: { email: email } });
+      
+
 
     if (emailPresent) {
       return res.status(400).json({
@@ -27,6 +31,7 @@ const signup = async (req, res) => {
       email,
       phone,
       password: hassedPassword,
+      photoUrl,
     });
 
     const token = await jwt.sign(
@@ -65,7 +70,9 @@ const login = async (req, res) => {
         
        
 
-        const emailPresent = await userModel.findOne({email})
+        const emailPresent = await userModel.findOne({
+          where: { email: email },
+        });
         
         if (!emailPresent) {
              return res.status(400).json({
