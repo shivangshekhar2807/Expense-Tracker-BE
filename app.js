@@ -1,11 +1,13 @@
 const express = require("express");
 const app = express();
 require("dotenv").config();
-const DB = require("./database/DBconnect");
+// const DB = require("./database/DBconnect");
+const {DB}=require("./models")
 const cookieparser = require("cookie-parser");
 const cors = require("cors");
 const userAuthRouter = require("./routes/userAuth");
 const profileRouter = require("./routes/profile");
+const expenseRouter = require("./routes/expense");
 
     (async () => {
         try {
@@ -39,3 +41,4 @@ app.use(cookieparser());
 
 app.use("/", userAuthRouter);
 app.use("/", profileRouter);
+app.use("/", expenseRouter);
