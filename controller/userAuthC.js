@@ -1,5 +1,6 @@
 const userModel = require("../models/user");
 const jwt = require("jsonwebtoken");
+const bcrypt=require("bcrypt")
 
 const signup = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ const signup = async (req, res) => {
       });
     }
 
-    const emailPresent = await userModel.findOne(email);
+    const emailPresent = await userModel.findOne({email});
 
     if (emailPresent) {
       return res.status(400).json({
@@ -38,7 +39,9 @@ const signup = async (req, res) => {
       }
     );
 
-    res.cookie("Token", token);
+      res.cookie("Token", token, {
+        maxAge: 3600000,
+      });
 
     res.status(201).json({
       Message: "User Added Successfully",
@@ -51,20 +54,77 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     try {
+       
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+             return res.status(400).json({
+               ERROR: "Credentials Required",
+             });
+        }
+        
+       
+
+        const emailPresent = await userModel.findOne({email})
+        
+        if (!emailPresent) {
+             return res.status(400).json({
+               ERROR: `User with email ${email} does not exist.`,
+             });
+        }
+        
+        
+
+        const hassPassword = await bcrypt.compare(
+          password,
+          emailPresent.password
+        );
+
+        
+
+        if (!hassPassword) {
+            return res.status(400).json({
+              ERROR: `Incorrect Password`,
+            });
+        }
+
+       
+
+        const token = await jwt.sign(
+          {
+            id: emailPresent.id,
+          },
+            process.env.JWT_SECRET,
+            {
+              expiresIn:"1h"
+          }
+        );
+       
+        res.cookie("Token", token, {
+          maxAge: 3600000,
+        });
+
+
       
 
-
-
-
-
-
-  } catch (err) {
+        res.status(201).json({
+            Message: "Login Successfull",
+            Data:emailPresent
+        })
+        
+    } catch (err) {
     res.status(500).json({ ERROR: err.message });
   }
 };
 
 const logout = async (req, res) => {
-  try {
+    try {
+      res.cookie("Token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.status(201).json({
+    status: "LOGOUT SUCCESSFULL",
+  });
   } catch (err) {
     res.status(500).json({ ERROR: err.message });
   }

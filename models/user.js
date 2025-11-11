@@ -19,6 +19,7 @@ const userModel = DB.define("Users", {
   email: {
     type: DataTypes.STRING(100),
     allowNull: true,
+    unique:true
   },
   phone: {
     type: DataTypes.STRING(100),
