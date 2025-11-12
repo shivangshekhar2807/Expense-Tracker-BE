@@ -10,6 +10,7 @@ const profileRouter = require("./routes/profile");
 const expenseRouter = require("./routes/expense");
 const leaderBoardRouter = require("./routes/leaderBoard");
 const reportRouter = require("./routes/report");
+const aiRouter = require("./routes/chatWithAI");
 
     (async () => {
         try {
@@ -45,4 +46,5 @@ app.use("/", userAuthRouter);
 app.use("/", profileRouter);
 app.use("/", expenseRouter);
 app.use("/", leaderBoardRouter);
-app.use("/",reportRouter)
+app.use("/", reportRouter);
+app.use("/",aiRouter)
