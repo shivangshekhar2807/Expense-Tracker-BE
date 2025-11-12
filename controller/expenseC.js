@@ -1,7 +1,9 @@
+const { Sequelize } = require("sequelize");
 const { expenseModel, userModel } = require("../models");
 
 
 const addExpense = async (req, res) => {
+    const transaction = await Sequelize.transaction();
     try {
         const { Category, Description, ExpenseAmount } = req.body;
         const user = req.user;
@@ -13,20 +15,27 @@ const addExpense = async (req, res) => {
             })
         }
 
-        const userData = await userModel.findByPk(id);
+       
+
+        const userData = await userModel.findByPk(id, { transaction });
 
         let total = Number(userData.Total_Expense) + Number(ExpenseAmount);
 
         userData.Total_Expense = total;
 
-        await userData.save();
+        await userData.save({ transaction });
       
-        const newExpense = await expenseModel.create({
-          Category,
-          Description,
-          ExpenseAmount,
-          UserId:id
-        });
+        const newExpense = await expenseModel.create(
+          {
+            Category,
+            Description,
+            ExpenseAmount,
+            UserId: id,
+          },
+          { transaction }
+        );
+
+         await transaction.commit();
 
         res.status(201).json({
             Message: "Expense Added",
@@ -35,6 +44,7 @@ const addExpense = async (req, res) => {
 
     }
     catch (err) {
+         await transaction.rollback();
         res.status(500).json({
             ERROR:err.message
         })
