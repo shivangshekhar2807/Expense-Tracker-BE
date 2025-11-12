@@ -12,6 +12,14 @@ const addExpense = async (req, res) => {
                 ERROR:"Category and Expense Required"
             })
         }
+
+        const userData = await userModel.findByPk(id);
+
+        let total = Number(userData.Total_Expense) + Number(ExpenseAmount);
+
+        userData.Total_Expense = total;
+
+        await userData.save();
       
         const newExpense = await expenseModel.create({
           Category,

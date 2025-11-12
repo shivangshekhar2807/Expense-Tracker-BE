@@ -18,7 +18,7 @@ const userModel = DB.define("Users", {
   },
   email: {
     type: DataTypes.STRING(100),
-    allowNull: true,
+    allowNull: false,
     unique: true,
   },
   phone: {
@@ -28,6 +28,12 @@ const userModel = DB.define("Users", {
   photoUrl: {
     type: DataTypes.STRING(100),
     allowNull: true,
+  },
+  
+  Total_Expense: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
   },
 });
 

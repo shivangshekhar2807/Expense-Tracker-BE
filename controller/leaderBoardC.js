@@ -24,7 +24,7 @@ const getLeaderBoard = async (req, res) => {
            },
          ],
          group: ["UserId", "User.id"],
-         order: [[Sequelize.literal("Total_Expense"), "DESC"]], 
+         order: [[Sequelize.literal("Total_Expense"), "DESC"]],
          raw: true,
        });
         
