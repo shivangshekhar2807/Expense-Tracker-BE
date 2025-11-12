@@ -1,11 +1,13 @@
-const { Sequelize } = require("sequelize")
+const { Sequelize } = require("sequelize");
+
 
 const DB = new Sequelize(
-  "Expense_Tracker",
-  "root",
+  process.env.DB_NAME,
+  process.env.DB_USER,
   process.env.DB_ROOT_PASSWORD,
   {
-    host: "localhost",
+    host: process.env.DB_HOST || "127.0.0.1",
+    port: process.env.DB_PORT || 3306,
     dialect: "mysql",
   }
 );
