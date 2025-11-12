@@ -1,9 +1,9 @@
 const { Sequelize } = require("sequelize");
-const { expenseModel, userModel } = require("../models");
+const { expenseModel, userModel, DB } = require("../models");
 
 
 const addExpense = async (req, res) => {
-    const transaction = await Sequelize.transaction();
+    const transaction = await DB.transaction();
     try {
         const { Category, Description, ExpenseAmount } = req.body;
         const user = req.user;
@@ -57,8 +57,13 @@ const getExpense = async (req, res) => {
     try {
       const user = req.user;
       const { id } = user;
+      let { page=1, limit=10 } = req.query;
+      page = parseInt(page);
+      limit = parseInt(limit);
+      const OFFSET = (page - 1) * limit;
       
-        const expense = await expenseModel.findAll({
+      
+        const { count, rows:expense } = await expenseModel.findAndCountAll({
           where: { UserId: id },
           include: [
             {
@@ -66,13 +71,35 @@ const getExpense = async (req, res) => {
               attributes: ["id", "name", "email", "photoUrl"],
             },
           ],
+          limit: limit,
+          offset: OFFSET,
+          order: [["createdAt", "DESC"]],
         });
+
+       
         
+        const totalPages = Math.ceil(count / limit);
+        
+         const baseUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}${
+           req.path
+             }`;
+        
+        const nextPage =
+          page < totalPages
+            ? `${baseUrl}?page=${page + 1}&limit=${limit}`
+            : null;
+
+        const previousPage =
+          page > 1 ? `${baseUrl}?page=${page - 1}&limit=${limit}` : null;
     
         res.status(200).json({
-            count:expense.length,
-            results:expense
-        })
+          count: expense.length,
+          currentPage: page,
+          pageSize: limit,
+          nextPage,
+          previousPage,
+          results: expense,
+        });
 
     }
     catch (err) {
