@@ -95,11 +95,21 @@ const getWebhook = async (req, res) => {
 
         const amount = paymentDetails.amount / 100;
 
-        if (paymentDetails.status == "captured" && type == "Premium") {
+        console.log("paymentDetails.notes.type", paymentDetails.notes.type);
+
+        if (paymentDetails.status == "captured" && paymentDetails.notes.type == "Premium") {
+             console.log(
+               "paymentDetails.notes.type",
+               paymentDetails.notes.type
+             );
             user.Premium = true;
             await user.save();
         }
-        else if (paymentDetails.status == "captured" && type == "Recharge") {
+        else if (paymentDetails.status == "captured" && paymentDetails.notes.type == "Recharge") {
+             console.log(
+               "paymentDetails.notes.type",
+               paymentDetails.notes.type
+             );
             user.Wallet_Balance += amount;
             await user.save();
         }
@@ -109,7 +119,7 @@ const getWebhook = async (req, res) => {
         
     }
     catch (err) {
-        return res.status(400).json({ ERROR: err.emssage });
+        return res.status(400).json({ ERROR: err.message });
     }
 }
 
