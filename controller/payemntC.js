@@ -29,7 +29,8 @@ const addpayment = async(req, res) =>{
           currency: paymentOrder.currency,
           status: paymentOrder.status,
           notes: paymentOrder.notes,
-          UserId:id
+          type,
+          UserId: id,
         });
 
         console.log(paymentOrder);
@@ -89,15 +90,16 @@ const getWebhook = async (req, res) => {
         if (!user) {
           return res.status(404).json({ ERROR: "User not found" });
         }
-
+       
+        const type = payment.type;
 
         const amount = paymentDetails.amount / 100;
 
-        if (paymentDetails.status == "captured" && paymentDetails.notes.type == "Premium") {
+        if (paymentDetails.status == "captured" && type == "Premium") {
             user.Premium = true;
             await user.save();
         }
-        else if (paymentDetails.status == "captured" && paymentDetails.notes.type == "Recharge") {
+        else if (paymentDetails.status == "captured" && type == "Recharge") {
             user.Wallet_Balance += amount;
             await user.save();
         }
