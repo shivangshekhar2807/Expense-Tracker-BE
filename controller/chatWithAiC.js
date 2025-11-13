@@ -1,10 +1,20 @@
 const {GoogleGenAI}=require("@google/genai");
-const { promptResponseModel } = require("../models");
+const { promptResponseModel, userModel } = require("../models");
+const { use } = require("react");
 
 const addChatAi = async (req, res) => {
     try {
         const { prompt } = req.body;
         const { id } = req.user;
+
+        const user = await userModel.findByPk(id);
+
+        const balance = user.Wallet_Balance;
+
+        if (balance <= 0) {
+            return res.status(400).json({ ERROR: "Insufficient Ballance. Please Recharge!!!" });
+        }
+
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         if (!prompt) {
@@ -49,7 +59,11 @@ const addChatAi = async (req, res) => {
             // res.status(201).json({
             //     message:"prompt saved",
             //   result: response.text,
-            // });
+        // });
+        
+        user.Wallet_Balance -= -1;
+
+        await user.save();
         
          res.status(201).json({
            message: "Prompt saved",

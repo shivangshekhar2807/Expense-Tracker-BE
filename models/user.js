@@ -29,11 +29,21 @@ const userModel = DB.define("Users", {
     type: DataTypes.STRING(100),
     allowNull: true,
   },
-  
+
   Total_Expense: {
     type: DataTypes.FLOAT,
     allowNull: false,
     defaultValue: 0,
+  },
+  Wallet_Balance: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  Premium: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
   },
 });
 

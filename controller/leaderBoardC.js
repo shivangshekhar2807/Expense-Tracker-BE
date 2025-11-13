@@ -6,6 +6,16 @@ const getLeaderBoard = async (req, res) => {
 
     try {
 
+        const { id } = req.user;
+
+        const user = await userModel.findByPk(id);
+
+        if (user.Premium == false) {
+            return res
+              .status(400)
+              .json({ ERROR: "Sorry you are not a Premium Member!!!" });
+        }
+
 
         let { page = 1, limit = 10 } = req.query;
         page = parseInt(page);
