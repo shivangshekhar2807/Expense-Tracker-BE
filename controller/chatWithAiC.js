@@ -43,11 +43,7 @@ const addChatAi = async (req, res) => {
            response?.text ||
            "No response generated.";
         
-        // const newPrompt = await promptResponseModel.create({
-        //   Prompt: prompt,
-        //   Response: response.text,
-        //   UserId:id
-        // });
+       
 
        const time= await promptResponseModel.create({
           Prompt: prompt,
@@ -56,12 +52,9 @@ const addChatAi = async (req, res) => {
         });
 
            
-            // res.status(201).json({
-            //     message:"prompt saved",
-            //   result: response.text,
-        // });
+          
         
-        user.Wallet_Balance -= -1;
+        user.Wallet_Balance -= 1;
 
         await user.save();
         
