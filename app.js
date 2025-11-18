@@ -30,7 +30,7 @@ initializeSocket(server);
             console.log("DB Synced");
 
             server.listen(process.env.SERVER_PORT, () => {
-              console.log("Server Listening on PORT 8000");
+              console.log("Server Listening on PORT 6666");
             });
  
         }
