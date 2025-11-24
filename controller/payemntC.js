@@ -1,5 +1,5 @@
 const { validateWebhookSignature } = require("razorpay/dist/utils/razorpay-utils");
-const { orderPaymentModel, userModel } = require("../models");
+const { orderPaymentModel, userModel, DB } = require("../models");
 const instance = require("../utils/razorpay");
 
 const addpayment = async(req, res) =>{
@@ -54,7 +54,11 @@ const addpayment = async(req, res) =>{
 
 
 const getWebhook = async (req, res) => {
+    const t = await DB.transaction();
     try {
+
+        
+
          const webhookSignature = req.get("X-Razorpay-Signature");
         console.log("webhookSignature", webhookSignature);
         
@@ -73,21 +77,33 @@ const getWebhook = async (req, res) => {
         
         const paymentDetails = req.body.payload.payment.entity;
 
-        const payment = await orderPaymentModel.findOne({
-          where: {
-            orderId: paymentDetails.order_id,
-          },
-        });
+        // const payment = await orderPaymentModel.findOne({
+        //   where: {
+        //     orderId: paymentDetails.order_id,
+        //     },
+             
+        // });
+
+          const payment = await orderPaymentModel.findOne(
+            { where: { orderId: paymentDetails.order_id } },
+            { transaction: t }
+          );
+        
+         if (!payment) {
+           await t.rollback();
+           return res.status(404).json({ ERROR: "Order not found" });
+         }
 
         payment.status = paymentDetails.status;
         
-        await payment.save();
+        await payment.save({ transaction: t });
 
         console.log("payment", payment);
 
         const user = await userModel.findByPk(payment.UserId)
         
         if (!user) {
+            await t.rollback();
           return res.status(404).json({ ERROR: "User not found" });
         }
        
@@ -103,7 +119,7 @@ const getWebhook = async (req, res) => {
                paymentDetails.notes.type
              );
             user.Premium = true;
-            await user.save();
+            await user.save({ transaction: t });
         }
         else if (paymentDetails.status == "captured" && paymentDetails.notes.type == "Recharge") {
              console.log(
@@ -111,14 +127,15 @@ const getWebhook = async (req, res) => {
                paymentDetails.notes.type
              );
             user.Wallet_Balance += amount;
-            await user.save();
+            await user.save({ transaction: t });
         }
         
-
+      await t.commit();
      return res.status(200).json({ message: "Webhooh recieved successfully" });
         
     }
     catch (err) {
+        await t.rollback();
         return res.status(400).json({ ERROR: err.message });
     }
 }

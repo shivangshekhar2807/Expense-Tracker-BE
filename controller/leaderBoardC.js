@@ -49,9 +49,11 @@ const getLeaderBoard = async (req, res) => {
         
         const totalPages = Math.ceil(count / limit);
 
-        const baseUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}${
-          req.path
-        }`;
+        // const baseUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}${
+        //   req.path
+        // }`;
+
+         const baseUrl = `https://expensetrack.space/api/${req.path}`;
 
         const nextPage =
           page < totalPages
